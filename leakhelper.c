@@ -17,7 +17,7 @@ int init_listing(int ptrcount){
 void* lcalloc(int size){
     void* ptr = calloc(size, 1);
     int free_element = 0;
-    while (free_element < listing_ptrcount && !listing[free_element].ptr);
+    while (free_element < listing_ptrcount && !listing[free_element].ptr) ++free_element;
     listing[free_element].ptr = ptr;
     return ptr;
 }
@@ -25,9 +25,18 @@ void* lcalloc(int size){
 void* lmalloc(int size){
     void* ptr = malloc(size);
     int free_element = 0;
-    while (free_element < listing_ptrcount && listing[free_element].ptr) free_element++;
+    while (free_element < listing_ptrcount && listing[free_element].ptr) ++free_element;
     listing[free_element].ptr = ptr;
     return ptr;
+}
+
+void* lrealloc(void* ptr, size_t new_size){
+	void* new = realloc(ptr, new_size);
+	if (!new) return new;
+	int index = 0;
+	while (free_element < listing_ptrcount && listing[index].ptr != ptr) ++index;
+	listing[index].ptr = new;
+	return new;
 }
 
 void lfree(void* ptr){
